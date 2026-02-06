@@ -13,15 +13,28 @@ PlayCamp SDK API 및 Node SDK 연동을 자동화하는 AI 에이전트 모음�
 
 ## 빠른 시작
 
-### 전체 에이전트 설치
+### 전체 에이전트 설치 (현재 프로젝트)
 ```bash
+cd your-game-server
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh)
 ```
 
-### 카테고리별 설치
+### 설치 옵션
 ```bash
-bash scripts/install.sh --platform=node  # Node SDK 에이전트만
-bash scripts/install.sh --platform=api   # API 에이전트만
+# 현재 프로젝트에 설치 (기본값)
+bash <(curl -fsSL ...) --local
+
+# 글로벌 설치 (~/.claude/agents/)
+bash <(curl -fsSL ...) --global
+
+# 특정 카테고리만 설치
+bash <(curl -fsSL ...) --platform=node  # Node SDK 에이전트만
+bash <(curl -fsSL ...) --platform=api   # API 에이전트만
+```
+
+### 삭제
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --uninstall
 ```
 
 ### 에이전트 사용

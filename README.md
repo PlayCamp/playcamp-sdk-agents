@@ -13,15 +13,28 @@ AI agents for automating PlayCamp SDK API and Node SDK integration.
 
 ## Quick Start
 
-### Install All Agents
+### Install All Agents (current project)
 ```bash
+cd your-game-server
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh)
 ```
 
-### Install by Category
+### Install Options
 ```bash
-bash scripts/install.sh --platform=node  # Node SDK agents only
-bash scripts/install.sh --platform=api   # API agents only
+# Install to current project (default)
+bash <(curl -fsSL ...) --local
+
+# Install globally (~/.claude/agents/)
+bash <(curl -fsSL ...) --global
+
+# Install specific category only
+bash <(curl -fsSL ...) --platform=node  # Node SDK agents only
+bash <(curl -fsSL ...) --platform=api   # API agents only
+```
+
+### Uninstall
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --uninstall
 ```
 
 ### Use Agents

@@ -1,0 +1,54 @@
+# PlayCamp SDK Version Tracking
+# Update this file when SDK versions change
+
+node_sdk:
+  package: "@playcamp/node-sdk"
+  min_node: "18.0.0"
+  last_verified: "2026-02-06"
+
+api:
+  version: "v1"
+  sandbox_url: "https://sandbox-sdk-api.playcamp.dev"
+  live_url: "https://sdk-api.playcamp.dev"
+
+auth:
+  format: "keyId:secret"
+  key_types:
+    - CLIENT  # Read-only
+    - SERVER  # Read/write
+
+webhook_events:
+  - coupon.redeemed
+  - payment.created
+  - payment.refunded
+  - sponsor.created
+  - sponsor.changed
+
+mandatory_apis:
+  - "POST /v1/server/sponsors"
+  - "POST /v1/server/coupons/validate"
+  - "POST /v1/server/payments"
+
+distribution_types:
+  - MOBILE_STORE       # 30% store fee
+  - PC_STORE           # 30% store fee
+  - MOBILE_SELF_STORE  # 0% store fee
+  - PC_SELF_STORE      # 0% store fee
+
+error_hierarchy:
+  - PlayCampError
+  - PlayCampApiError (401, 403, 404, 409, 422, 429)
+  - PlayCampInputValidationError
+  - PlayCampNetworkError
+
+agents:
+  node:
+    - playcamp-integrator
+    - playcamp-auditor
+    - playcamp-webhook-specialist
+    - playcamp-migration-assistant
+    - playcamp-test-verifier
+  api:
+    - playcamp-api-guide
+
+agents_last_updated: "2026-02-06"

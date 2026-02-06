@@ -1,5 +1,7 @@
 # PlayCamp SDK - Claude Code Agents
 
+**English** | [한국어](README.ko.md)
+
 PlayCamp SDK API 및 Node SDK 연동을 위한 AI 에이전트.
 
 ## Supported Categories

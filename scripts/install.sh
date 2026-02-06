@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_OWNER="PlayCamp"
-REPO_NAME="playcamp-sdk-agent"
+REPO_NAME="playcamp-sdk-agents"
 # Allow branch override via --branch argument or BRANCH env var, default to 'main'
 BRANCH="main"
 PLATFORM="all"  # Default: install all platforms

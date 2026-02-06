@@ -256,7 +256,7 @@ claude
 ## File Structure Reference
 
 ```
-playcamp-sdk-agent/
+playcamp-sdk-agents/
 ├── .claude/
 │   └── agents/
 │       ├── node/                    # Node SDK agent definitions

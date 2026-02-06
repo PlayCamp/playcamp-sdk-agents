@@ -15,7 +15,7 @@ PlayCamp SDK API 및 Node SDK 연동을 위한 AI 에이전트.
 
 ### Install All Agents
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agent/main/scripts/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh)
 ```
 
 ### Install by Category
@@ -69,5 +69,5 @@ migration-assistant → auditor → test-verifier
 
 ## Resources
 
-- **Issues**: https://github.com/PlayCamp/playcamp-sdk-agent/issues
+- **Issues**: https://github.com/PlayCamp/playcamp-sdk-agents/issues
 - **Claude Code**: https://claude.ai/code

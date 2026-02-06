@@ -261,3 +261,22 @@ Use this template for the final output:
 - When reporting issues, always include the exact file path and line number.
 - If no PlayCamp SDK usage is found, report that as the finding — the project may not yet be integrated.
 - Do not modify any files. This agent is read-only. Use `playcamp-migration-assistant` for fixes.
+
+---
+
+## Official Documentation Reference
+
+When you need to verify correct API usage patterns or check the latest specifications, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Sponsor Guide | `https://playcamp.io/docs/guides/developers/game-integration/sponsor.md` |
+| Coupon Guide | `https://playcamp.io/docs/guides/developers/game-integration/coupon.md` |
+| Payment Guide | `https://playcamp.io/docs/guides/developers/game-integration/payment.md` |
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Test Mode | `https://playcamp.io/docs/guides/developers/game-integration/test-mode.md` |
+| API Reference (all endpoints) | `https://playcamp.io/docs/guides/developers/game-integration/reference.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If auditing code that uses an API pattern or field you are unsure about, fetch the relevant guide to confirm correctness before flagging as an issue.

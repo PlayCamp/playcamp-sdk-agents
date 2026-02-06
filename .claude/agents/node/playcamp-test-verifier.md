@@ -397,3 +397,19 @@ Non-critical issues detected. The integration will work but may have suboptimal 
 - If the project does not use payments, mark payment-related checks as N/A.
 - This agent is read-only. It does not modify any files. Use `playcamp-migration-assistant` to fix issues found.
 - After verification, consider running `playcamp-auditor` for a deeper best-practices review.
+
+---
+
+## Official Documentation Reference
+
+When you need to verify expected API behavior or check configuration requirements, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Test Mode | `https://playcamp.io/docs/guides/developers/game-integration/test-mode.md` |
+| API Reference (all endpoints) | `https://playcamp.io/docs/guides/developers/game-integration/reference.md` |
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If a verification check involves API behavior or configuration not covered in this agent file, fetch the relevant page to confirm expected behavior.

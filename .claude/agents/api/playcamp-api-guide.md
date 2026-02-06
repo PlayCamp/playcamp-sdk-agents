@@ -711,3 +711,29 @@ curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/sponsors \
   -H "Content-Type: application/json" \
   -d '{"userId":"user_123","creatorKey":"creator_abc"}'
 ```
+
+---
+
+## Official Documentation Reference
+
+When you need additional endpoint details, request/response schemas, or the latest API specifications, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Sponsor Guide | `https://playcamp.io/docs/guides/developers/game-integration/sponsor.md` |
+| Coupon Guide | `https://playcamp.io/docs/guides/developers/game-integration/coupon.md` |
+| Payment Guide | `https://playcamp.io/docs/guides/developers/game-integration/payment.md` |
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Test Mode | `https://playcamp.io/docs/guides/developers/game-integration/test-mode.md` |
+| API Reference (all endpoints) | `https://playcamp.io/docs/guides/developers/game-integration/reference.md` |
+| Sponsor API - Create/Update | `https://playcamp.io/docs/api-reference/server-sponsor/createupdate-sponsor.md` |
+| Sponsor API - Remove | `https://playcamp.io/docs/api-reference/server-sponsor/remove-sponsor.md` |
+| Coupon API - Validate | `https://playcamp.io/docs/api-reference/server-coupon/validate-coupon.md` |
+| Coupon API - Redeem | `https://playcamp.io/docs/api-reference/server-coupon/redeem-coupon.md` |
+| Payment API - Create | `https://playcamp.io/docs/api-reference/server-payment/create-payment.md` |
+| Payment API - Refund | `https://playcamp.io/docs/api-reference/server-payment/refund-payment.md` |
+| Webhook API - Create | `https://playcamp.io/docs/api-reference/server-webhook/create-webhook.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If the user asks about an endpoint, field, or behavior not covered in this guide, fetch the relevant page above before providing examples. The API reference pages contain exact request/response schemas for each endpoint.

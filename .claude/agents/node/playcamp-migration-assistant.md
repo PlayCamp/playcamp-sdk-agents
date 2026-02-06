@@ -466,3 +466,21 @@ VERIFICATION:
 - If a raw HTTP call does not map to any SDK method, flag it for manual review — it may be a custom or deprecated endpoint.
 - After migration, run the `playcamp-auditor` agent to verify the migrated code meets all best practices.
 - After migration, run the `playcamp-test-verifier` agent to verify build and configuration.
+
+---
+
+## Official Documentation Reference
+
+When you need to verify SDK method mappings or check the latest API specifications, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| API Reference (all endpoints) | `https://playcamp.io/docs/guides/developers/game-integration/reference.md` |
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Sponsor Guide | `https://playcamp.io/docs/guides/developers/game-integration/sponsor.md` |
+| Coupon Guide | `https://playcamp.io/docs/guides/developers/game-integration/coupon.md` |
+| Payment Guide | `https://playcamp.io/docs/guides/developers/game-integration/payment.md` |
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If a raw HTTP call targets an endpoint not listed in the migration mapping table above, fetch the API reference to find the correct SDK method.

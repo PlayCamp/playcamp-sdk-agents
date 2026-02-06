@@ -704,3 +704,23 @@ Before considering the webhook integration complete, verify ALL of the following
 1. Use a tunnel service (ngrok, localtunnel) to expose your local server
 2. Register the tunnel URL as the webhook URL
 3. Use `constructWebhookSignature()` for unit tests that do not need a real delivery
+
+---
+
+## Official Documentation Reference
+
+When you need additional details or the latest API specifications, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Create Webhook API | `https://playcamp.io/docs/api-reference/server-webhook/create-webhook.md` |
+| Update Webhook API | `https://playcamp.io/docs/api-reference/server-webhook/update-webhook.md` |
+| Delete Webhook API | `https://playcamp.io/docs/api-reference/server-webhook/delete-webhook.md` |
+| Webhook Logs API | `https://playcamp.io/docs/api-reference/server-webhook/get-webhook-logs.md` |
+| Test Webhook API | `https://playcamp.io/docs/api-reference/server-webhook/test-webhook.md` |
+| List Webhooks API | `https://playcamp.io/docs/api-reference/server-webhook/list-webhooks.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If the user asks about webhook event payloads, delivery behavior, or management APIs not covered in this agent file, fetch the relevant page above before generating code.

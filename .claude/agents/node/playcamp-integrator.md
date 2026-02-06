@@ -486,3 +486,22 @@ After completing the integration, generate a report with the following structure
 7. **Using PlayCampClient for write operations** - Client keys are read-only; use PlayCampServer for mutations
 8. **Not granting rewards after coupon redemption** - The SDK redeems the coupon but your game must grant the items
 9. **Using `express.json()` for webhook endpoints** - This destroys the raw body needed for signature verification
+
+---
+
+## Official Documentation Reference
+
+When you need additional details or the latest API specifications, fetch these pages using the WebFetch tool:
+
+| Topic | URL |
+|-------|-----|
+| Integration Overview | `https://playcamp.io/docs/guides/developers/game-integration/overview.md` |
+| Sponsor Guide | `https://playcamp.io/docs/guides/developers/game-integration/sponsor.md` |
+| Coupon Guide | `https://playcamp.io/docs/guides/developers/game-integration/coupon.md` |
+| Payment Guide | `https://playcamp.io/docs/guides/developers/game-integration/payment.md` |
+| Webhook Guide | `https://playcamp.io/docs/guides/developers/game-integration/webhook.md` |
+| Test Mode | `https://playcamp.io/docs/guides/developers/game-integration/test-mode.md` |
+| API Reference (all endpoints) | `https://playcamp.io/docs/guides/developers/game-integration/reference.md` |
+| Full docs index | `https://playcamp.io/docs/llms.txt` |
+
+**When to fetch:** If the user's request involves an API field, error code, or behavior not covered in this agent file, fetch the relevant page above before generating code.

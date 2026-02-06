@@ -362,7 +362,7 @@ remove_routing_rules() {
         return 0
     fi
 
-    # Remove the routing block (from marker to end of table)
+    # Remove the entire routing block (from marker to next non-routing content)
     local tmp_file
     tmp_file=$(mktemp)
     awk -v marker="$ROUTING_MARKER" '
@@ -370,7 +370,8 @@ remove_routing_rules() {
         $0 ~ marker { skip=1; next }
         skip==1 && /^$/ { next }
         skip==1 && /^\|/ { next }
-        skip==1 && !/^\|/ && !/^$/ { skip=0 }
+        skip==1 && /^[^#]/ && !/^\|/ && !/^$/ { next }
+        skip==1 && /^#/ { skip=0 }
         skip==0 { print }
     ' "$claude_md" > "$tmp_file"
 

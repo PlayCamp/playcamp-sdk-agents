@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-PlayCamp SDK API 및 Node SDK 연동을 위한 AI 에이전트.
+AI agents for automating PlayCamp SDK API and Node SDK integration.
 
 ## Supported Categories
 
@@ -34,14 +34,14 @@ claude
 ## Agents
 
 ### Node SDK Agents (5)
-- **@agent-playcamp-integrator** - SDK 설치 + 필수 API 연동
-- **@agent-playcamp-auditor** - 연동 코드 검증
-- **@agent-playcamp-webhook-specialist** - 웹훅 수신 설정
-- **@agent-playcamp-migration-assistant** - Raw HTTP → SDK 전환
-- **@agent-playcamp-test-verifier** - 빌드/설정 검증
+- **@agent-playcamp-integrator** - SDK setup + mandatory API integration
+- **@agent-playcamp-auditor** - Integration code review and validation
+- **@agent-playcamp-webhook-specialist** - Webhook endpoint setup
+- **@agent-playcamp-migration-assistant** - Raw HTTP → SDK migration
+- **@agent-playcamp-test-verifier** - Build and config verification
 
 ### API Agents (1)
-- **@agent-playcamp-api-guide** - 직접 HTTP API 호출 가이드
+- **@agent-playcamp-api-guide** - Direct HTTP API integration guide
 
 ## Workflows
 
@@ -62,10 +62,10 @@ migration-assistant → auditor → test-verifier
 
 ## Key Features
 
-- Fast Integration - Node SDK 자동 설정
-- Multi-Language Support - Node.js 외 언어도 직접 API 가이드
-- Security Validation - API 키 노출, 웹훅 서명 검증
-- Build Verification - TypeScript 컴파일 + 환경 설정 확인
+- Fast Integration - Automated Node SDK setup
+- Multi-Language Support - Direct HTTP API guide for non-Node.js languages
+- Security Validation - API key exposure checks, webhook signature verification
+- Build Verification - TypeScript compilation + environment config validation
 
 ## Resources
 

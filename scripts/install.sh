@@ -36,6 +36,9 @@ for arg in "$@"; do
         --local|-l)
             INSTALL_TYPE="local"
             ;;
+        --uninstall)
+            INSTALL_TYPE="uninstall"
+            ;;
         --help|-h)
             INSTALL_TYPE="help"
             ;;
@@ -273,6 +276,38 @@ verify_installation() {
     fi
 }
 
+# Uninstall agents
+uninstall_agents() {
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║      PlayCamp SDK Agent Uninstaller          ║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    local removed=0
+
+    # Remove local agents
+    if [ -d ".claude/agents/node" ] || [ -d ".claude/agents/api" ]; then
+        print_info "Removing local agents (.claude/agents/)..."
+        [ -d ".claude/agents/node" ] && rm -rf ".claude/agents/node" && print_success "Removed .claude/agents/node" && ((removed++))
+        [ -d ".claude/agents/api" ] && rm -rf ".claude/agents/api" && print_success "Removed .claude/agents/api" && ((removed++))
+    fi
+
+    # Remove global agents
+    if [ -d "$HOME/.claude/agents/node" ] || [ -d "$HOME/.claude/agents/api" ]; then
+        print_info "Removing global agents (~/.claude/agents/)..."
+        [ -d "$HOME/.claude/agents/node" ] && rm -rf "$HOME/.claude/agents/node" && print_success "Removed ~/.claude/agents/node" && ((removed++))
+        [ -d "$HOME/.claude/agents/api" ] && rm -rf "$HOME/.claude/agents/api" && print_success "Removed ~/.claude/agents/api" && ((removed++))
+    fi
+
+    echo ""
+    if [ $removed -eq 0 ]; then
+        print_warning "No PlayCamp agents found to remove"
+    else
+        print_success "Uninstall complete"
+    fi
+}
+
 # Show usage instructions
 show_usage() {
     echo "Usage: bash install.sh [OPTIONS]"
@@ -282,6 +317,7 @@ show_usage() {
     echo "  --global              Install agents globally to ~/.claude/agents/"
     echo "  --platform=PLATFORM   Choose platform: node, api, or all (default: all)"
     echo "  --branch=BRANCH       Install from specific branch (default: main)"
+    echo "  --uninstall           Remove all PlayCamp agents (local and global)"
     echo "  --help                Show this help message"
     echo ""
     echo "Examples:"
@@ -363,6 +399,12 @@ main() {
     # Handle help
     if [ "$INSTALL_TYPE" = "help" ]; then
         show_usage
+        exit 0
+    fi
+
+    # Handle uninstall
+    if [ "$INSTALL_TYPE" = "uninstall" ]; then
+        uninstall_agents
         exit 0
     fi
 

@@ -2,7 +2,7 @@
 
 # PlayCamp SDK - Agent Installer
 # Installs PlayCamp integration agents for Claude Code
-# Usage: bash install.sh [--global|--local] [--platform=node|api|all]
+# Usage: bash install.sh [--global|--local] [--platform=node|go|api|all]
 
 set -e
 
@@ -54,12 +54,12 @@ BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}
 
 # Validate platform argument
 case $PLATFORM in
-    node|api|all)
+    node|go|api|all)
         ;;
     *)
         echo -e "${RED}Error: Invalid platform '${PLATFORM}'${NC}"
-        echo "Valid options: node, api, all"
-        echo "Usage: bash install.sh [--global|--local] [--platform=node|api|all]"
+        echo "Valid options: node, go, api, all"
+        echo "Usage: bash install.sh [--global|--local] [--platform=node|go|api|all]"
         exit 1
         ;;
 esac
@@ -71,6 +71,15 @@ NODE_AGENTS=(
     "playcamp-webhook-specialist"
     "playcamp-migration-assistant"
     "playcamp-test-verifier"
+)
+
+# Go SDK agent files
+GO_AGENTS=(
+    "playcamp-go-integrator"
+    "playcamp-go-auditor"
+    "playcamp-go-webhook-specialist"
+    "playcamp-go-migration-assistant"
+    "playcamp-go-test-verifier"
 )
 
 # API agent files
@@ -89,11 +98,14 @@ print_header() {
         node)
             echo -e "  Platform: ${GREEN}Node SDK Agents${NC} (${#NODE_AGENTS[@]} agents)"
             ;;
+        go)
+            echo -e "  Platform: ${GREEN}Go SDK Agents${NC} (${#GO_AGENTS[@]} agents)"
+            ;;
         api)
             echo -e "  Platform: ${GREEN}API Agents${NC} (${#API_AGENTS[@]} agents)"
             ;;
         all)
-            echo -e "  Platform: ${GREEN}All Agents${NC} ($((${#NODE_AGENTS[@]} + ${#API_AGENTS[@]})) agents)"
+            echo -e "  Platform: ${GREEN}All Agents${NC} ($((${#NODE_AGENTS[@]} + ${#GO_AGENTS[@]} + ${#API_AGENTS[@]})) agents)"
             ;;
     esac
     echo -e "  Branch:   ${GREEN}${BRANCH}${NC}"
@@ -199,11 +211,15 @@ install_global() {
         node)
             install_platform_agents "$agent_dir" "node" "${NODE_AGENTS[@]}" || failed=1
             ;;
+        go)
+            install_platform_agents "$agent_dir" "go" "${GO_AGENTS[@]}" || failed=1
+            ;;
         api)
             install_platform_agents "$agent_dir" "api" "${API_AGENTS[@]}" || failed=1
             ;;
         all)
             install_platform_agents "$agent_dir" "node" "${NODE_AGENTS[@]}" || failed=1
+            install_platform_agents "$agent_dir" "go" "${GO_AGENTS[@]}" || failed=1
             install_platform_agents "$agent_dir" "api" "${API_AGENTS[@]}" || failed=1
             ;;
     esac
@@ -226,11 +242,15 @@ install_local() {
         node)
             install_platform_agents "$agent_dir" "node" "${NODE_AGENTS[@]}" || failed=1
             ;;
+        go)
+            install_platform_agents "$agent_dir" "go" "${GO_AGENTS[@]}" || failed=1
+            ;;
         api)
             install_platform_agents "$agent_dir" "api" "${API_AGENTS[@]}" || failed=1
             ;;
         all)
             install_platform_agents "$agent_dir" "node" "${NODE_AGENTS[@]}" || failed=1
+            install_platform_agents "$agent_dir" "go" "${GO_AGENTS[@]}" || failed=1
             install_platform_agents "$agent_dir" "api" "${API_AGENTS[@]}" || failed=1
             ;;
     esac
@@ -253,6 +273,15 @@ verify_installation() {
         total_expected=$((total_expected + ${#NODE_AGENTS[@]}))
         for agent in "${NODE_AGENTS[@]}"; do
             if [ -f "${agent_dir}/node/${agent}.md" ]; then
+                ((found_count++))
+            fi
+        done
+    fi
+
+    if [ "$PLATFORM" = "go" ] || [ "$PLATFORM" = "all" ]; then
+        total_expected=$((total_expected + ${#GO_AGENTS[@]}))
+        for agent in "${GO_AGENTS[@]}"; do
+            if [ -f "${agent_dir}/go/${agent}.md" ]; then
                 ((found_count++))
             fi
         done
@@ -287,16 +316,18 @@ uninstall_agents() {
     local removed=0
 
     # Remove local agents
-    if [ -d ".claude/agents/node" ] || [ -d ".claude/agents/api" ]; then
+    if [ -d ".claude/agents/node" ] || [ -d ".claude/agents/go" ] || [ -d ".claude/agents/api" ]; then
         print_info "Removing local agents (.claude/agents/)..."
         [ -d ".claude/agents/node" ] && rm -rf ".claude/agents/node" && print_success "Removed .claude/agents/node" && ((removed++))
+        [ -d ".claude/agents/go" ] && rm -rf ".claude/agents/go" && print_success "Removed .claude/agents/go" && ((removed++))
         [ -d ".claude/agents/api" ] && rm -rf ".claude/agents/api" && print_success "Removed .claude/agents/api" && ((removed++))
     fi
 
     # Remove global agents
-    if [ -d "$HOME/.claude/agents/node" ] || [ -d "$HOME/.claude/agents/api" ]; then
+    if [ -d "$HOME/.claude/agents/node" ] || [ -d "$HOME/.claude/agents/go" ] || [ -d "$HOME/.claude/agents/api" ]; then
         print_info "Removing global agents (~/.claude/agents/)..."
         [ -d "$HOME/.claude/agents/node" ] && rm -rf "$HOME/.claude/agents/node" && print_success "Removed ~/.claude/agents/node" && ((removed++))
+        [ -d "$HOME/.claude/agents/go" ] && rm -rf "$HOME/.claude/agents/go" && print_success "Removed ~/.claude/agents/go" && ((removed++))
         [ -d "$HOME/.claude/agents/api" ] && rm -rf "$HOME/.claude/agents/api" && print_success "Removed ~/.claude/agents/api" && ((removed++))
     fi
 
@@ -328,7 +359,12 @@ When the user requests anything related to PlayCamp SDK — including payment, c
 | Code review, audit, security check for PlayCamp code | \`@agent-playcamp-auditor\` |
 | Migrate raw HTTP/fetch/axios calls to PlayCamp SDK | \`@agent-playcamp-migration-assistant\` |
 | Build verification, config check, environment validation | \`@agent-playcamp-test-verifier\` |
-| Direct HTTP API guide (Python, Go, Java, non-Node.js) | \`@agent-playcamp-api-guide\` |
+| Direct HTTP API guide (Python, Java, C#, PHP, non-SDK languages) | \`@agent-playcamp-api-guide\` |
+| Go SDK setup, integration, payment, coupon, sponsor API | \`@agent-playcamp-go-integrator\` |
+| Go webhook endpoint, event handling, signature verification | \`@agent-playcamp-go-webhook-specialist\` |
+| Go code review, audit, security check for PlayCamp code | \`@agent-playcamp-go-auditor\` |
+| Go: migrate raw HTTP calls to PlayCamp Go SDK | \`@agent-playcamp-go-migration-assistant\` |
+| Go: build verification, config check, go vet | \`@agent-playcamp-go-test-verifier\` |
 ${ROUTING_END}"
 
 # Inject routing rules into CLAUDE.md
@@ -383,7 +419,7 @@ show_usage() {
     echo "Options:"
     echo "  --local               Install agents to current project's .claude/agents/ (default)"
     echo "  --global              Install agents globally to ~/.claude/agents/"
-    echo "  --platform=PLATFORM   Choose platform: node, api, or all (default: all)"
+    echo "  --platform=PLATFORM   Choose platform: node, go, api, or all (default: all)"
     echo "  --branch=BRANCH       Install from specific branch (default: main)"
     echo "  --uninstall           Remove all PlayCamp agents (local and global)"
     echo "  --help                Show this help message"
@@ -393,6 +429,7 @@ show_usage() {
     echo "  bash install.sh --local                   # Install all agents to current project"
     echo "  bash install.sh --global                  # Install all agents globally"
     echo "  bash install.sh --platform=node           # Install only Node SDK agents"
+    echo "  bash install.sh --platform=go             # Install only Go SDK agents"
     echo "  bash install.sh --platform=api            # Install only API agents"
     echo "  bash install.sh --global --platform=node  # Install Node agents globally"
 }
@@ -411,6 +448,13 @@ show_next_steps() {
     if [ "$PLATFORM" = "node" ] || [ "$PLATFORM" = "all" ]; then
         echo "   Node SDK:"
         for agent in "${NODE_AGENTS[@]}"; do
+            echo "     - ${agent}"
+        done
+    fi
+
+    if [ "$PLATFORM" = "go" ] || [ "$PLATFORM" = "all" ]; then
+        echo "   Go SDK:"
+        for agent in "${GO_AGENTS[@]}"; do
             echo "     - ${agent}"
         done
     fi
@@ -446,8 +490,11 @@ show_next_steps() {
         echo "   Node SDK integration:"
         echo -e "   ${YELLOW}Use @agent-playcamp-integrator to integrate PlayCamp SDK with server key: YOUR_KEY${NC}"
         echo ""
-        echo "   Webhook setup:"
-        echo -e "   ${YELLOW}Use @agent-playcamp-webhook-specialist to set up webhook endpoints${NC}"
+    fi
+
+    if [ "$PLATFORM" = "go" ] || [ "$PLATFORM" = "all" ]; then
+        echo "   Go SDK integration:"
+        echo -e "   ${YELLOW}Use @agent-playcamp-go-integrator to integrate PlayCamp Go SDK${NC}"
         echo ""
     fi
 

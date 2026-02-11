@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository contains specialized Claude Code agents for automating PlayCamp SDK integration into game servers. The agents help game publishers integrate the PlayCamp Node SDK (`@playcamp/node-sdk`) for sponsor management, coupon validation, and payment processing, reducing game server integration time significantly. 6 agents across 2 categories (Node SDK and API).
+This repository contains specialized Claude Code agents for automating PlayCamp SDK integration into game servers. The agents help game publishers integrate the PlayCamp Node SDK (`@playcamp/node-sdk`) and Go SDK (`github.com/playcamp/playcamp-go-sdk`) for sponsor management, coupon validation, and payment processing, reducing game server integration time significantly. 11 agents across 3 categories (Node SDK, Go SDK, and API).
 
 ## Architecture Overview
 
@@ -21,6 +21,13 @@ User/Main Agent (Coordinator)
     │    ├── @agent-playcamp-webhook-specialist   (Webhook Setup)
     │    ├── @agent-playcamp-migration-assistant  (Raw HTTP → SDK Migration)
     │    └── @agent-playcamp-test-verifier        (Build + Config Verification)
+    │
+    ├──► Go SDK Agents
+    │    ├── @agent-playcamp-go-integrator          (Go SDK Setup + Core Integration)
+    │    ├── @agent-playcamp-go-auditor             (Go Code Review + Validation)
+    │    ├── @agent-playcamp-go-webhook-specialist   (Go Webhook Setup)
+    │    ├── @agent-playcamp-go-migration-assistant  (Raw HTTP → Go SDK Migration)
+    │    └── @agent-playcamp-go-test-verifier        (Go Build + Config Verification)
     │
     └──► API Agents
          └── @agent-playcamp-api-guide           (Direct HTTP API Guide)
@@ -41,8 +48,14 @@ User/Main Agent (Coordinator)
      - `playcamp-webhook-specialist.md` → `@agent-playcamp-webhook-specialist` (webhook endpoint setup, signature verification)
      - `playcamp-migration-assistant.md` → `@agent-playcamp-migration-assistant` (migrates raw HTTP calls to SDK methods)
      - `playcamp-test-verifier.md` → `@agent-playcamp-test-verifier` (build verification, config validation, env checks)
+   - **Go SDK** (`.claude/agents/go/`)
+     - `playcamp-go-integrator.md` → `@agent-playcamp-go-integrator` (Go SDK setup, client initialization, core API integration)
+     - `playcamp-go-auditor.md` → `@agent-playcamp-go-auditor` (validates Go integration correctness, error handling, security)
+     - `playcamp-go-webhook-specialist.md` → `@agent-playcamp-go-webhook-specialist` (Go webhook endpoint setup, webhookutil signature verification)
+     - `playcamp-go-migration-assistant.md` → `@agent-playcamp-go-migration-assistant` (migrates raw HTTP calls to Go SDK methods)
+     - `playcamp-go-test-verifier.md` → `@agent-playcamp-go-test-verifier` (go build/vet verification, config validation, env checks)
    - **API** (`.claude/agents/api/`)
-     - `playcamp-api-guide.md` → `@agent-playcamp-api-guide` (direct HTTP API integration for non-Node.js)
+     - `playcamp-api-guide.md` → `@agent-playcamp-api-guide` (direct HTTP API integration for non-SDK languages)
 
 2. **Scripts** (`scripts/`)
    - `install.sh` - Installs agents globally or locally
@@ -63,27 +76,44 @@ integrator → webhook-specialist → auditor → test-verifier
 3. `@agent-playcamp-auditor` reviews the full integration for correctness and security
 4. `@agent-playcamp-test-verifier` validates build, config, and environment setup
 
-### Direct HTTP Integration (non-Node.js)
+### New Go SDK Integration
+```
+go-integrator → go-webhook-specialist → go-auditor → go-test-verifier
+```
+1. `@agent-playcamp-go-integrator` sets up Go SDK, initializes clients, implements mandatory APIs
+2. `@agent-playcamp-go-webhook-specialist` configures webhook endpoints with webhookutil signature verification
+3. `@agent-playcamp-go-auditor` reviews the full integration with Go-specific checks (errors.As, context, etc.)
+4. `@agent-playcamp-go-test-verifier` validates go build, go vet, and environment setup
+
+### Direct HTTP Integration (non-SDK languages)
 ```
 api-guide
 ```
-1. `@agent-playcamp-api-guide` provides HTTP endpoint details, auth headers, request/response formats, and webhook verification examples for any language (Python, Go, Java, C#, PHP, curl)
+1. `@agent-playcamp-api-guide` provides HTTP endpoint details, auth headers, request/response formats, and webhook verification examples for any language (Python, Java, C#, PHP, curl)
 
 ### Migration from Raw HTTP to SDK
 ```
-migration-assistant → auditor → test-verifier
+migration-assistant → auditor → test-verifier          (Node)
+go-migration-assistant → go-auditor → go-test-verifier  (Go)
 ```
-1. `@agent-playcamp-migration-assistant` identifies raw HTTP calls and replaces them with SDK methods
-2. `@agent-playcamp-auditor` validates the migration is complete and correct
-3. `@agent-playcamp-test-verifier` verifies the build and configuration
+1. Migration agent identifies raw HTTP calls and replaces them with SDK methods
+2. Auditor validates the migration is complete and correct
+3. Test verifier verifies the build and configuration
 
 ## PlayCamp SDK Quick Reference
 
-### Package & Clients
+### Node SDK
 - **Package**: `@playcamp/node-sdk`
 - **Two clients**:
   - `PlayCampClient` - Read-only operations, uses CLIENT key
   - `PlayCampServer` - Read/write operations, uses SERVER key
+
+### Go SDK
+- **Module**: `github.com/playcamp/playcamp-go-sdk` (Go 1.21+)
+- **Two clients**:
+  - `playcamp.NewClient()` - Read-only operations, uses CLIENT key
+  - `playcamp.NewServer()` - Read/write operations, uses SERVER key
+- **Key patterns**: `errors.As()` for error handling, `context.Context` for all API calls, pointer helpers (`playcamp.String()`, `playcamp.Int()`)
 
 ### Authentication
 - **Format**: `Authorization: Bearer {keyId}:{secret}`
@@ -143,6 +173,11 @@ Set up PlayCamp payment processing in my Node.js app
 ```
 
 ```
+Integrate PlayCamp Go SDK into my game server
+→ Claude Code routes to @agent-playcamp-go-integrator based on description
+```
+
+```
 Set up webhook endpoints for PlayCamp events
 → Claude Code routes to @agent-playcamp-webhook-specialist based on description
 ```
@@ -150,6 +185,11 @@ Set up webhook endpoints for PlayCamp events
 ```
 Migrate my raw fetch() calls to the PlayCamp SDK
 → Claude Code routes to @agent-playcamp-migration-assistant based on description
+```
+
+```
+Migrate my raw net/http calls to PlayCamp Go SDK
+→ Claude Code routes to @agent-playcamp-go-migration-assistant based on description
 ```
 
 ## Agent Coordination
@@ -185,7 +225,7 @@ The agents must stay synchronized with PlayCamp SDK public APIs. When SDK versio
 
 ## Common Pitfalls
 
-### PlayCamp SDK Integration
+### PlayCamp SDK Integration (Node)
 
 1. **Webhook raw body**: Must use `express.raw()` (not `express.json()`) for the webhook endpoint to preserve the raw body needed for signature verification
 2. **distributionType is required**: Payments will fail without a valid `distributionType` field
@@ -196,10 +236,23 @@ The agents must stay synchronized with PlayCamp SDK public APIs. When SDK versio
 7. **isTest flag**: Must not be hardcoded `true` in production - use environment-based configuration
 8. **SERVER key exposure**: SERVER key must never be exposed to client-side code - only use in server-side environments
 
-### Webhook Setup
+### PlayCamp SDK Integration (Go)
+
+1. **Error handling with errors.As()**: Must use `errors.As()` instead of type assertions for error checking
+2. **context.Context required**: All SDK API calls require `context.Context` as the first parameter
+3. **Webhook raw body**: Must use `io.ReadAll(r.Body)` before any JSON parsing for webhook signature verification
+4. **Pointer helpers**: Use `playcamp.String()`, `playcamp.Int()` etc. for optional fields
+5. **isTest from env**: Use `os.Getenv("SDK_TEST_MODE") == "true"`, never hardcode `true`
+
+### Webhook Setup (Node)
 1. **Missing raw body middleware**: Signature verification requires the unparsed request body
 2. **Wrong middleware order**: `express.raw()` must be applied before `express.json()` on the webhook route
 3. **Missing event type handling**: Must handle all subscribed webhook event types
+
+### Webhook Setup (Go)
+1. **Raw body reading**: Must use `io.ReadAll(r.Body)` before any JSON parsing
+2. **webhookutil.Verify()**: Use the SDK's built-in verification, not manual HMAC
+3. **Batch events**: Webhook payloads contain arrays of events, not single events
 
 ### Error Handling
 1. **Not catching specific error types**: Use the error hierarchy to handle different failure modes
@@ -220,28 +273,26 @@ bash scripts/install.sh --local
 bash scripts/install.sh --global
 ```
 
-### Testing Agents
+### Testing Node Agents
 ```bash
-# Navigate to a test Node.js server project
-cd /path/to/node/server
+cd /path/to/node/server && claude
 
-# Launch Claude Code
-claude
-
-# Test integration agent
 "Use @agent-playcamp-integrator to integrate PlayCamp SDK with server key: test-key"
-
-# Test webhook specialist
 "Use @agent-playcamp-webhook-specialist to set up webhook endpoints"
-
-# Test auditor
 "Use @agent-playcamp-auditor to review my PlayCamp integration"
-
-# Test migration assistant
 "Use @agent-playcamp-migration-assistant to migrate my raw HTTP calls to SDK"
-
-# Test build verifier
 "Use @agent-playcamp-test-verifier to verify my project configuration"
+```
+
+### Testing Go Agents
+```bash
+cd /path/to/go/server && claude
+
+"Use @agent-playcamp-go-integrator to integrate PlayCamp Go SDK into my server"
+"Use @agent-playcamp-go-webhook-specialist to set up Go webhook endpoints"
+"Use @agent-playcamp-go-auditor to review my PlayCamp Go integration"
+"Use @agent-playcamp-go-migration-assistant to migrate my raw HTTP calls to Go SDK"
+"Use @agent-playcamp-go-test-verifier to verify my Go project configuration"
 ```
 
 ## Agent Development Guidelines
@@ -249,7 +300,7 @@ claude
 ### When Modifying Agents
 
 1. **Maintain API Accuracy**: All code examples must match SDK version in `SDK_VERSION.yaml`
-2. **Test Against Real Projects**: Validate changes with actual Node.js server apps
+2. **Test Against Real Projects**: Validate changes with actual Node.js/Go server apps
 3. **Update Documentation**: Keep agent files and README in sync with capabilities
 4. **Version Tracking**: Update `SDK_VERSION.yaml` when SDK version changes
 
@@ -265,12 +316,19 @@ playcamp-sdk-agents/
 │       │   ├── playcamp-webhook-specialist.md
 │       │   ├── playcamp-migration-assistant.md
 │       │   └── playcamp-test-verifier.md
+│       ├── go/                      # Go SDK agent definitions
+│       │   ├── playcamp-go-integrator.md
+│       │   ├── playcamp-go-auditor.md
+│       │   ├── playcamp-go-webhook-specialist.md
+│       │   ├── playcamp-go-migration-assistant.md
+│       │   └── playcamp-go-test-verifier.md
 │       └── api/                     # API agent definitions
 │           └── playcamp-api-guide.md
 ├── scripts/
 │   └── install.sh                   # Agent installer
 ├── SDK_VERSION.yaml                 # SDK version tracking
 ├── CLAUDE.md                        # This file
-├── README.md                        # Quick start guide
+├── README.md                        # Quick start guide (English)
+├── README.ko.md                     # Quick start guide (Korean)
 └── LICENSE                          # MIT License
 ```

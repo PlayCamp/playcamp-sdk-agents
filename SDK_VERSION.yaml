@@ -6,6 +6,11 @@ node_sdk:
   min_node: "18.0.0"
   last_verified: "2026-02-06"
 
+go_sdk:
+  module: "github.com/playcamp/playcamp-go-sdk"
+  min_go: "1.21"
+  last_verified: "2026-02-06"
+
 api:
   version: "v1"
   sandbox_url: "https://sandbox-sdk-api.playcamp.dev"
@@ -48,6 +53,12 @@ agents:
     - playcamp-webhook-specialist
     - playcamp-migration-assistant
     - playcamp-test-verifier
+  go:
+    - playcamp-go-integrator
+    - playcamp-go-auditor
+    - playcamp-go-webhook-specialist
+    - playcamp-go-migration-assistant
+    - playcamp-go-test-verifier
   api:
     - playcamp-api-guide
 

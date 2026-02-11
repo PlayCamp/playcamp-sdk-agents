@@ -1,6 +1,6 @@
 # PlayCamp SDK - Claude Code 에이전트
 
-PlayCamp SDK API 및 Node SDK 연동을 자동화하는 AI 에이전트 모음입니다.
+PlayCamp SDK 연동을 자동화하는 AI 에이전트 모음입니다 (Node.js, Go, 직접 HTTP API).
 
 [English](README.md) | **한국어**
 
@@ -9,6 +9,7 @@ PlayCamp SDK API 및 Node SDK 연동을 자동화하는 AI 에이전트 모음�
 | 카테고리 | 상태 | 에이전트 수 |
 |----------|------|-------------|
 | **Node SDK** | Production | 5개 |
+| **Go SDK** | Production | 5개 |
 | **API** | Production | 1개 |
 
 ## 빠른 시작
@@ -45,6 +46,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents
 
 # 특정 카테고리만 설치
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=node
+bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=go
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=api
 
 # 삭제 (에이전트 파일 + CLAUDE.md 라우팅 규칙 제거)
@@ -60,8 +62,15 @@ bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents
 - **@agent-playcamp-migration-assistant** - 기존 Raw HTTP 호출을 SDK로 전환
 - **@agent-playcamp-test-verifier** - 빌드 확인, 환경 설정 검증
 
+### Go SDK 에이전트 (5개)
+- **@agent-playcamp-go-integrator** - Go SDK 설치 및 필수 API 연동 (스폰서, 쿠폰, 결제)
+- **@agent-playcamp-go-auditor** - Go 연동 코드 품질 검증 및 보안 점검
+- **@agent-playcamp-go-webhook-specialist** - Go 웹훅 엔드포인트 설정 및 서명 검증
+- **@agent-playcamp-go-migration-assistant** - 기존 Raw HTTP 호출을 Go SDK로 전환
+- **@agent-playcamp-go-test-verifier** - Go 빌드 확인, 환경 설정 검증
+
 ### API 에이전트 (1개)
-- **@agent-playcamp-api-guide** - Node.js 외 언어(Python, Go, Java 등)를 위한 직접 HTTP API 가이드
+- **@agent-playcamp-api-guide** - Node.js/Go 외 언어(Python, Java, C# 등)를 위한 직접 HTTP API 가이드
 
 ## 사용 예시
 
@@ -83,20 +92,42 @@ PlayCamp 연동 코드 보안 점검해줘
 PlayCamp SDK 빌드랑 환경 설정 확인해줘
 ```
 
-### 직접 API 연동 (non-Node.js)
+### 신규 연동 (Go)
+
+```
+Go 게임 서버에 PlayCamp Go SDK 연동해줘. 스폰서, 쿠폰, 결제 API 필요해
+```
+
+```
+Go 서버에 PlayCamp 웹훅 수신 엔드포인트 만들어줘. webhookutil 서명 검증 포함해서
+```
+
+```
+PlayCamp Go 연동 코드 리뷰해줘
+```
+
+```
+PlayCamp Go SDK 빌드랑 환경 설정 확인해줘
+```
+
+### 직접 API 연동 (SDK 미지원 언어)
 
 ```
 Python으로 PlayCamp 결제 API 연동하는 방법 알려줘
 ```
 
 ```
-Go 서버에 PlayCamp 스폰서, 쿠폰 API 연동해줘
+Java 서버에 PlayCamp 스폰서, 쿠폰 API 연동해줘
 ```
 
 ### 마이그레이션
 
 ```
-기존 fetch() 호출을 PlayCamp SDK 메서드로 전환해줘
+기존 fetch() 호출을 PlayCamp Node SDK 메서드로 전환해줘
+```
+
+```
+기존 net/http 호출을 PlayCamp Go SDK 메서드로 전환해줘
 ```
 
 ### 에이전트 직접 호출
@@ -126,7 +157,16 @@ integrator → webhook-specialist → auditor → test-verifier
 3. **auditor**가 전체 연동 코드 검토 및 보안 점검
 4. **test-verifier**가 빌드, 설정, 환경 변수 검증
 
-### 직접 HTTP 연동 (Node.js 외)
+### 신규 Go SDK 연동
+```
+go-integrator → go-webhook-specialist → go-auditor → go-test-verifier
+```
+1. **go-integrator**가 Go SDK 설치, 클라이언트 초기화, 필수 API 구현
+2. **go-webhook-specialist**가 webhookutil로 웹훅 엔드포인트 설정
+3. **go-auditor**가 Go 관련 점검 (errors.As, context 등)
+4. **go-test-verifier**가 go build, go vet, 환경 설정 검증
+
+### 직접 HTTP 연동 (SDK 미지원 언어)
 ```
 api-guide
 ```
@@ -134,11 +174,12 @@ api-guide
 
 ### Raw HTTP에서 SDK로 마이그레이션
 ```
-migration-assistant → auditor → test-verifier
+migration-assistant → auditor → test-verifier          (Node)
+go-migration-assistant → go-auditor → go-test-verifier  (Go)
 ```
-1. **migration-assistant**가 기존 fetch/axios 호출을 SDK 메서드로 변환
-2. **auditor**가 마이그레이션 완료 여부 및 정확성 검증
-3. **test-verifier**가 빌드 및 설정 확인
+1. **migration-assistant / go-migration-assistant**가 기존 HTTP 호출을 SDK 메서드로 변환
+2. **auditor / go-auditor**가 마이그레이션 완료 여부 및 정확성 검증
+3. **test-verifier / go-test-verifier**가 빌드 및 설정 확인
 
 ## 동작 원리
 
@@ -155,9 +196,10 @@ migration-assistant → auditor → test-verifier
 
 - **자동 설정** - SDK 설치, 클라이언트 초기화, 환경 설정
 - **필수 API 3개** - 스폰서, 쿠폰, 결제 연동 자동화
-- **다국어 지원** - Python, Go, Java, C#, PHP 등 직접 HTTP API 가이드
+- **Node + Go SDK** - 두 공식 SDK에 대한 전체 에이전트 지원
+- **다국어 지원** - Python, Java, C#, PHP 등 직접 HTTP API 가이드
 - **보안 검증** - API 키 노출 방지, 웹훅 서명 검증, 에러 처리 점검
-- **빌드 확인** - TypeScript 컴파일 및 환경 설정 자동 검증
+- **빌드 확인** - TypeScript/Go 컴파일 및 환경 설정 자동 검증
 - **공식 문서 연동** - 에이전트가 [PlayCamp 문서](https://playcamp.io/docs/guides/developers/game-integration/overview)를 실시간 참조
 
 ## 필수 API (3개)

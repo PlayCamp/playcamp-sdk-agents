@@ -2,13 +2,14 @@
 
 **English** | [한국어](README.ko.md)
 
-AI agents for automating PlayCamp SDK API and Node SDK integration.
+AI agents for automating PlayCamp SDK integration (Node.js, Go, and direct HTTP API).
 
 ## Supported Categories
 
 | Category | Status | Agents |
 |----------|--------|--------|
 | **Node SDK** | Production | 5 agents |
+| **Go SDK** | Production | 5 agents |
 | **API** | Production | 1 agent |
 
 ## Quick Start
@@ -45,6 +46,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents
 
 # Install specific category only
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=node
+bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=go
 bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents/main/scripts/install.sh) --platform=api
 
 # Uninstall (removes agents + routing rules from CLAUDE.md)
@@ -59,6 +61,13 @@ bash <(curl -fsSL https://raw.githubusercontent.com/PlayCamp/playcamp-sdk-agents
 - **@agent-playcamp-webhook-specialist** - Webhook endpoint setup
 - **@agent-playcamp-migration-assistant** - Raw HTTP → SDK migration
 - **@agent-playcamp-test-verifier** - Build and config verification
+
+### Go SDK Agents (5)
+- **@agent-playcamp-go-integrator** - Go SDK setup + mandatory API integration
+- **@agent-playcamp-go-auditor** - Go integration code review and validation
+- **@agent-playcamp-go-webhook-specialist** - Go webhook endpoint setup
+- **@agent-playcamp-go-migration-assistant** - Raw HTTP → Go SDK migration
+- **@agent-playcamp-go-test-verifier** - Go build and config verification
 
 ### API Agents (1)
 - **@agent-playcamp-api-guide** - Direct HTTP API integration guide
@@ -83,20 +92,34 @@ Review my PlayCamp integration for security issues and best practices
 Verify my PlayCamp SDK build and environment configuration
 ```
 
-### Direct API Integration (non-Node.js)
+### New Integration (Go)
+
+```
+Integrate PlayCamp Go SDK into my game server with sponsor, coupon, and payment APIs
+```
+
+```
+Set up PlayCamp webhook handling with webhookutil signature verification in my Go server
+```
+
+### Direct API Integration (non-SDK languages)
 
 ```
 Show me how to integrate PlayCamp payment API in Python
 ```
 
 ```
-Set up PlayCamp sponsor and coupon APIs in my Go server
+Set up PlayCamp sponsor and coupon APIs in my Java server
 ```
 
 ### Migration
 
 ```
-Migrate my raw fetch() calls to PlayCamp SDK methods
+Migrate my raw fetch() calls to PlayCamp Node SDK methods
+```
+
+```
+Migrate my raw net/http calls to PlayCamp Go SDK methods
 ```
 
 ### Explicit Agent Invocation
@@ -126,19 +149,26 @@ integrator → webhook-specialist → auditor → test-verifier
 3. **auditor** reviews full integration for correctness and security
 4. **test-verifier** validates build, config, and environment setup
 
-### Direct HTTP Integration (non-Node.js)
+### New Go SDK Integration
+```
+go-integrator → go-webhook-specialist → go-auditor → go-test-verifier
+```
+1. **go-integrator** installs Go SDK, initializes clients, implements mandatory APIs
+2. **go-webhook-specialist** configures webhook endpoints with webhookutil
+3. **go-auditor** reviews integration with Go-specific checks (errors.As, context, etc.)
+4. **go-test-verifier** validates go build, go vet, and environment setup
+
+### Direct HTTP Integration (non-SDK languages)
 ```
 api-guide
 ```
-1. **api-guide** provides HTTP endpoints, auth headers, request/response formats, and webhook verification examples for any language
+1. **api-guide** provides HTTP endpoints, auth headers, request/response formats for Python, Java, C#, PHP, etc.
 
 ### Migration from Raw HTTP
 ```
-migration-assistant → auditor → test-verifier
+migration-assistant → auditor → test-verifier     (Node)
+go-migration-assistant → go-auditor → go-test-verifier  (Go)
 ```
-1. **migration-assistant** converts fetch/axios calls to SDK methods
-2. **auditor** validates migration completeness and correctness
-3. **test-verifier** verifies build and configuration
 
 ## How It Works
 
@@ -155,9 +185,10 @@ User: "Add PlayCamp payment processing"
 
 - **Automated Setup** - SDK installation, client initialization, environment configuration
 - **3 Mandatory APIs** - Sponsor, coupon, and payment integration out of the box
-- **Multi-Language** - Direct HTTP API guide for Python, Go, Java, C#, PHP, and more
+- **Node + Go SDKs** - Full agent coverage for both official SDKs
+- **Multi-Language** - Direct HTTP API guide for Python, Java, C#, PHP, and more
 - **Security** - API key exposure checks, webhook signature verification, error handling
-- **Build Verification** - TypeScript compilation and environment config validation
+- **Build Verification** - TypeScript/Go compilation and environment config validation
 - **Official Docs** - Agents reference [PlayCamp documentation](https://playcamp.io/docs/guides/developers/game-integration/overview) for latest API specs
 
 ## Resources

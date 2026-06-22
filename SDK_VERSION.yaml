@@ -3,18 +3,20 @@
 
 node_sdk:
   package: "@playcamp/node-sdk"
+  version: "0.0.8"
   min_node: "18.0.0"
-  last_verified: "2026-02-06"
+  last_verified: "2026-06-22"
 
 go_sdk:
   module: "github.com/playcamp/playcamp-go-sdk"
+  version: "0.0.8"
   min_go: "1.21"
-  last_verified: "2026-02-06"
+  last_verified: "2026-06-22"
 
 api:
   version: "v1"
-  sandbox_url: "https://sandbox-sdk-api.playcamp.dev"
-  live_url: "https://sdk-api.playcamp.dev"
+  sandbox_url: "https://sandbox-sdk-api.playcamp.io"
+  live_url: "https://sdk-api.playcamp.io"
 
 auth:
   format: "keyId:secret"
@@ -26,13 +28,40 @@ webhook_events:
   - coupon.redeemed
   - payment.created
   - payment.refunded
+  - payment.bulk_created  # added v0.0.x (bulk payments)
   - sponsor.created
   - sponsor.changed
+  - sponsor.ended         # added
 
 mandatory_apis:
   - "POST /v1/server/sponsors"
   - "POST /v1/server/coupons/validate"
   - "POST /v1/server/payments"
+
+# Additional server APIs exposed by the SDK (optional but commonly used)
+additional_apis:
+  - "POST /v1/server/payments/bulk"            # bulk payments, max 1000
+  - "POST /v1/server/playtime/sessions"        # playtime session (single), added v0.0.7
+  - "POST /v1/server/playtime/sessions/bulk"   # playtime sessions (bulk, max 1000), added v0.0.7
+  - "POST /v1/server/webview/ott"              # WebView one-time token, added v0.0.6
+
+# Server-client resource surface (PlayCampServer)
+server_resources:
+  - campaigns
+  - creators
+  - coupons
+  - sponsors
+  - payments
+  - playtimeSessions  # added v0.0.7
+  - webhooks
+  - webview           # added v0.0.6
+
+# Read-only client resource surface (PlayCampClient)
+client_resources:
+  - campaigns
+  - creators
+  - coupons
+  - sponsors
 
 distribution_types:
   - MOBILE_STORE       # 30% store fee
@@ -40,26 +69,27 @@ distribution_types:
   - MOBILE_SELF_STORE  # 0% store fee
   - PC_SELF_STORE      # 0% store fee
 
+platforms:
+  - iOS
+  - Android
+  - Web
+  - Roblox
+  - Other
+
 error_hierarchy:
   - PlayCampError
   - PlayCampApiError (401, 403, 404, 409, 422, 429)
   - PlayCampInputValidationError
   - PlayCampNetworkError
 
+# Agents consolidated from 11 → 3 (one per language/platform) on 2026-06-22.
+# Each agent covers every role (integrate, webhook, migrate, audit, verify).
 agents:
   node:
-    - playcamp-integrator
-    - playcamp-auditor
-    - playcamp-webhook-specialist
-    - playcamp-migration-assistant
-    - playcamp-test-verifier
+    - playcamp-node   # @agent-playcamp-node
   go:
-    - playcamp-go-integrator
-    - playcamp-go-auditor
-    - playcamp-go-webhook-specialist
-    - playcamp-go-migration-assistant
-    - playcamp-go-test-verifier
+    - playcamp-go     # @agent-playcamp-go
   api:
-    - playcamp-api-guide
+    - playcamp-api    # @agent-playcamp-api
 
-agents_last_updated: "2026-02-06"
+agents_last_updated: "2026-06-22"

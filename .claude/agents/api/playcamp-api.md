@@ -1,17 +1,18 @@
 ---
-name: playcamp-api-guide
-description: Guides direct HTTP API integration with PlayCamp SDK API without Node SDK. Supports any language (Python, Go, Java, C#, PHP, curl). Provides endpoint documentation, authentication, request/response examples, webhook verification, and error handling.
+name: playcamp-api
+description: PlayCamp SDK direct HTTP API integration guide for non-SDK languages (Python, Java, C#, PHP, Ruby, curl). Endpoint docs, Bearer auth, request/response examples, webhook signature verification, and error handling. Use proactively when integrating PlayCamp without the Node or Go SDK.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
+color: orange
 ---
 
 # PlayCamp SDK API Integration Guide
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-06-22
 
 ## Mission
 
-Help developers integrate with the PlayCamp SDK API using direct HTTP calls without the Node SDK. This guide supports any programming language or framework including Python, Go, Java, C#, PHP, Ruby, and curl.
+Help developers integrate with the PlayCamp SDK API using direct HTTP calls without the Node or Go SDK. This guide supports any programming language or framework including Python, Java, C#, PHP, Ruby, and curl.
 
 ---
 
@@ -48,12 +49,12 @@ Authorization: Bearer ak_client_def456:secret_uvw321
 
 | Environment | Base URL | Purpose |
 |-------------|----------|---------|
-| **Sandbox** | `https://sandbox-sdk-api.playcamp.dev` | Development and testing. Safe to experiment. |
-| **Live** | `https://sdk-api.playcamp.dev` | Production. Real data and transactions. |
+| **Sandbox** | `https://sandbox-sdk-api.playcamp.io` | Development and testing. Safe to experiment. |
+| **Live** | `https://sdk-api.playcamp.io` | Production. Real data and transactions. |
 
 All endpoint paths below are appended to the base URL. For example:
 ```
-POST https://sandbox-sdk-api.playcamp.dev/v1/server/sponsors
+POST https://sandbox-sdk-api.playcamp.io/v1/server/sponsors
 ```
 
 ---
@@ -68,7 +69,7 @@ Creates or updates a sponsor relationship between a user and a creator. Uses **u
 
 **Request:**
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/sponsors \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/sponsors \
   -H "Authorization: Bearer {keyId}:{secret}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -116,7 +117,7 @@ Check if a coupon code is valid before redemption.
 
 **Request:**
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/coupons/validate \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/coupons/validate \
   -H "Authorization: Bearer {keyId}:{secret}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -157,7 +158,7 @@ Actually use (consume) the coupon. Call this after successful validation.
 
 **Request:**
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/coupons/redeem \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/coupons/redeem \
   -H "Authorization: Bearer {keyId}:{secret}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -198,7 +199,7 @@ Record a completed payment transaction for attribution and settlement.
 
 **Request:**
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/payments \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/payments \
   -H "Authorization: Bearer {keyId}:{secret}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -263,7 +264,211 @@ This is intentional idempotency protection. If you receive a 409, the payment wa
 
 ---
 
-## 4. Complete API Endpoint Reference
+## 4. Additional Endpoints (v0.0.6–v0.0.8)
+
+These endpoints extend the core integration with playtime tracking, bulk operations, and WebView authentication. All use base URL `https://sandbox-sdk-api.playcamp.io` (sandbox) or `https://sdk-api.playcamp.io` (live), header `Authorization: Bearer {keyId}:{secret}`, and `Content-Type: application/json`.
+
+### 4.1 Playtime Session (single) — POST /v1/server/playtime/sessions
+
+Records a single playtime session for a user. The idempotency key is `projectId + sessionId` (UNIQUE) — submitting the same `sessionId` again is **not an error**; the existing record is kept and `recorded` is returned as `false`.
+
+**Request:**
+```bash
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/playtime/sessions \
+  -H "Authorization: Bearer {keyId}:{secret}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "sess_abc_001",
+    "userId": "user_12345",
+    "durationSeconds": 1830,
+    "startedAt": "2026-06-22T09:00:00Z",
+    "endedAt": "2026-06-22T09:30:30Z",
+    "campaignId": "camp_001",
+    "creatorKey": "ABC12",
+    "platform": "iOS",
+    "metadata": { "level": 7, "mode": "ranked" }
+  }'
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| sessionId | string | Yes | Unique session identifier from your system |
+| userId | string | Yes | Your internal user identifier |
+| durationSeconds | integer | Yes | Session length in seconds (must be >= 1) |
+| startedAt | string | Yes | ISO 8601 timestamp when the session started |
+| endedAt | string | Yes | ISO 8601 timestamp when the session ended (must be >= startedAt) |
+| campaignId | string | No | Campaign ID. If omitted, auto-attributed to active campaign. |
+| creatorKey | string | No | Creator key. Exactly 5 uppercase alphanumeric characters (e.g., `ABC12`). |
+| platform | string | No | One of `iOS`, `Android`, `Web`, `Roblox`, `Other`. Defaults to `Other`. |
+| metadata | object | No | Arbitrary key/value metadata |
+| callbackId | string | No | Correlation ID echoed back in webhook events |
+| isTest | boolean | No | Test mode — validates without persisting |
+
+**Response (200):**
+```json
+{
+  "data": {
+    "sessionId": "sess_abc_001",
+    "userId": "user_12345",
+    "durationSeconds": 1830,
+    "recorded": true,
+    "createdAt": "2026-06-22T09:30:35Z"
+  }
+}
+```
+
+`recorded` is `false` when a session with the same `projectId + sessionId` already exists (the existing record is kept).
+
+### 4.2 Playtime Sessions (bulk) — POST /v1/server/playtime/sessions/bulk
+
+Records up to **1000** playtime sessions in one request. Each session object uses the same fields as the single endpoint **except** `callbackId` and `isTest`, which are set once at the top level for the whole batch.
+
+**Request:**
+```bash
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/playtime/sessions/bulk \
+  -H "Authorization: Bearer {keyId}:{secret}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessions": [
+      {
+        "sessionId": "sess_001",
+        "userId": "user_12345",
+        "durationSeconds": 1830,
+        "startedAt": "2026-06-22T09:00:00Z",
+        "endedAt": "2026-06-22T09:30:30Z",
+        "platform": "iOS"
+      },
+      {
+        "sessionId": "sess_002",
+        "userId": "user_67890",
+        "durationSeconds": 600,
+        "startedAt": "2026-06-22T10:00:00Z",
+        "endedAt": "2026-06-22T10:10:00Z",
+        "platform": "Android"
+      }
+    ],
+    "callbackId": "batch_2026_06_22",
+    "isTest": false
+  }'
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| sessions | array | Yes | Up to 1000 session objects (per-item `callbackId`/`isTest` not allowed) |
+| callbackId | string | No | Correlation ID for the whole batch |
+| isTest | boolean | No | Test mode for the whole batch |
+
+**Response (200):**
+```json
+{
+  "data": {
+    "totalRequested": 2,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 1,
+    "results": [
+      { "sessionId": "sess_001", "status": "SUCCESS" },
+      { "sessionId": "sess_002", "status": "SKIPPED" }
+    ]
+  }
+}
+```
+
+Each result `status` is one of `SUCCESS`, `SKIPPED` (duplicate `sessionId`, existing kept), or `FAILED` (with an `error` field describing the cause).
+
+### 4.3 Bulk Payments — POST /v1/server/payments/bulk
+
+Records up to **1000** payment transactions in one request. Each payment object uses the same fields as the single payment endpoint; `callbackId` and `isTest` are set once at the top level.
+
+**Request:**
+```bash
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/payments/bulk \
+  -H "Authorization: Bearer {keyId}:{secret}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "payments": [
+      {
+        "userId": "user_12345",
+        "transactionId": "txn_001",
+        "productId": "gem_pack_100",
+        "amount": 9.99,
+        "currency": "USD",
+        "platform": "iOS",
+        "distributionType": "MOBILE_STORE",
+        "purchasedAt": "2026-06-22T09:00:00Z"
+      }
+    ],
+    "callbackId": "payments_batch_01",
+    "isTest": false
+  }'
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| payments | array | Yes | Up to 1000 payment objects |
+| callbackId | string | No | Correlation ID for the whole batch |
+| isTest | boolean | No | Test mode for the whole batch |
+
+**Response (200):**
+```json
+{
+  "data": {
+    "totalRequested": 1,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 0,
+    "results": [
+      {
+        "transactionId": "txn_001",
+        "status": "SUCCESS",
+        "data": { "transactionId": "txn_001", "status": "COMPLETED" }
+      }
+    ]
+  }
+}
+```
+
+Each result `status` is one of `SUCCESS`, `SKIPPED` (duplicate `transactionId`, existing kept), or `FAILED` (with an `error` field). Successful results include the recorded payment under `data`. A completed bulk run also fires the `payment.bulk_created` webhook event (see Section 6).
+
+### 4.4 WebView OTT — POST /v1/server/webview/ott
+
+Issues a one-time token (OTT) used to securely open the PlayCamp WebView for a given user. The token is short-lived; exchange it immediately.
+
+**Request:**
+```bash
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/webview/ott \
+  -H "Authorization: Bearer {keyId}:{secret}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user_12345",
+    "campaignId": "camp_001",
+    "codeChallenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+    "metadata": { "locale": "ko" }
+  }'
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| userId | string | Yes | Your internal user identifier |
+| campaignId | string | No | Campaign ID. If omitted, auto-attributed to active campaign. |
+| codeChallenge | string | No | PKCE code challenge for the WebView exchange |
+| callbackId | string | No | Correlation ID echoed back in webhook events |
+| metadata | object | No | Arbitrary key/value metadata |
+| isTest | boolean | No | Test mode — validates without persisting |
+
+**Response (200):**
+```json
+{
+  "data": {
+    "ott": "ott_abc123xyz",
+    "expiresAt": "2026-06-22T09:05:00Z"
+  }
+}
+```
+
+---
+
+## 5. Complete API Endpoint Reference
 
 ### Server API (SERVER key required)
 
@@ -278,9 +483,13 @@ This is intentional idempotency protection. If you receive a 409, the payment wa
 | **Coupon** | POST | /v1/server/coupons/redeem | Redeem coupon code |
 | **Coupon** | GET | /v1/server/coupons/user/:userId | Get user's coupon history |
 | **Payment** | POST | /v1/server/payments | Record payment |
+| **Payment** | POST | /v1/server/payments/bulk | Record up to 1000 payments (bulk) |
 | **Payment** | GET | /v1/server/payments/:transactionId | Get payment by transaction ID |
 | **Payment** | GET | /v1/server/payments/user/:userId | Get user's payment history |
 | **Payment** | POST | /v1/server/payments/:transactionId/refund | Refund a payment |
+| **Playtime** | POST | /v1/server/playtime/sessions | Record a single playtime session |
+| **Playtime** | POST | /v1/server/playtime/sessions/bulk | Record up to 1000 playtime sessions (bulk) |
+| **WebView** | POST | /v1/server/webview/ott | Issue a one-time token for the PlayCamp WebView |
 | **Campaign** | GET | /v1/server/campaigns | List all campaigns |
 | **Campaign** | GET | /v1/server/campaigns/:id | Get campaign details |
 | **Campaign** | GET | /v1/server/campaigns/:id/creators | Get campaign's creators |
@@ -309,7 +518,7 @@ This is intentional idempotency protection. If you receive a 409, the payment wa
 
 ---
 
-## 5. Webhook Receiver Setup
+## 6. Webhook Receiver Setup
 
 Webhooks allow PlayCamp to notify your server of events in real time.
 
@@ -323,7 +532,7 @@ Webhooks allow PlayCamp to notify your server of events in real time.
 
 ### Batch Payload Format
 
-Webhooks are delivered in batches. The payload is always:
+Webhooks are delivered in batches — the payload always contains an **array** of events, never a single event. Every event shares the base fields `event`, `timestamp`, and optionally `callbackId` and `isTest`:
 
 ```json
 {
@@ -331,6 +540,8 @@ Webhooks are delivered in batches. The payload is always:
     {
       "event": "sponsor.created",
       "timestamp": "2026-02-06T10:00:00Z",
+      "callbackId": "optional_correlation_id",
+      "isTest": false,
       "data": { ... }
     },
     {
@@ -349,8 +560,10 @@ Webhooks are delivered in batches. The payload is always:
 | coupon.redeemed | Coupon code redeemed by user |
 | payment.created | Payment successfully recorded |
 | payment.refunded | Payment refunded |
+| payment.bulk_created | A bulk payment batch (POST /v1/server/payments/bulk) completed |
 | sponsor.created | New sponsor relationship established |
 | sponsor.changed | Sponsor relationship changed (different creator) |
+| sponsor.ended | Sponsor relationship ended (campaign ended or relationship removed) |
 
 ### Signature Verification
 
@@ -489,6 +702,22 @@ function verifySignature(string $payload, string $signature, string $secret): bo
 }
 ```
 
+**payment.bulk_created:**
+```json
+{
+  "event": "payment.bulk_created",
+  "timestamp": "2026-06-22T09:01:00Z",
+  "callbackId": "payments_batch_01",
+  "data": {
+    "totalRequested": 100,
+    "successful": 98,
+    "failed": 1,
+    "skipped": 1,
+    "transactionIds": ["txn_001", "txn_002", "txn_003"]
+  }
+}
+```
+
 **sponsor.changed:**
 ```json
 {
@@ -503,9 +732,22 @@ function verifySignature(string $payload, string $signature, string $secret): bo
 }
 ```
 
+**sponsor.ended:**
+```json
+{
+  "event": "sponsor.ended",
+  "timestamp": "2026-06-22T10:20:00Z",
+  "data": {
+    "userId": "user_12345",
+    "creatorKey": "streamer_abc",
+    "campaignId": "camp_001"
+  }
+}
+```
+
 ---
 
-## 6. Test Mode (isTest)
+## 7. Test Mode (isTest)
 
 Test mode validates all parameters and returns realistic mock data without writing to the database.
 
@@ -514,7 +756,7 @@ Test mode validates all parameters and returns realistic mock data without writi
 Add `"isTest": true` to the request body:
 
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/payments \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/payments \
   -H "Authorization: Bearer {keyId}:{secret}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -530,12 +772,14 @@ curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/payments \
   }'
 ```
 
+For bulk endpoints, set `isTest` once at the top level of the request body (it applies to every item in the batch).
+
 ### GET Requests
 
 Add `?isTest=true` as a query parameter:
 
 ```bash
-curl https://sandbox-sdk-api.playcamp.dev/v1/server/payments/user/user_12345?isTest=true \
+curl https://sandbox-sdk-api.playcamp.io/v1/server/payments/user/user_12345?isTest=true \
   -H "Authorization: Bearer {keyId}:{secret}"
 ```
 
@@ -546,7 +790,7 @@ Test mode is useful for:
 
 ---
 
-## 7. Error Response Format
+## 8. Error Response Format
 
 All errors follow a consistent format:
 
@@ -590,7 +834,7 @@ elif response.status_code >= 500:
 
 ---
 
-## 8. Response Format
+## 9. Response Format
 
 ### Single Object Response
 
@@ -621,6 +865,26 @@ elif response.status_code >= 500:
 }
 ```
 
+### Bulk Operation Response
+
+Bulk endpoints (`/payments/bulk`, `/playtime/sessions/bulk`) return aggregate counts plus a per-item `results` array:
+
+```json
+{
+  "data": {
+    "totalRequested": 3,
+    "successful": 2,
+    "failed": 0,
+    "skipped": 1,
+    "results": [
+      { "transactionId": "txn_001", "status": "SUCCESS", "data": { } },
+      { "transactionId": "txn_002", "status": "SUCCESS", "data": { } },
+      { "transactionId": "txn_003", "status": "SKIPPED" }
+    ]
+  }
+}
+```
+
 ### Pagination Query Parameters
 
 | Parameter | Default | Description |
@@ -630,9 +894,9 @@ elif response.status_code >= 500:
 
 ---
 
-## 9. Platform Values
+## 10. Platform Values
 
-Used in the `platform` field for payment recording.
+Used in the `platform` field for payment and playtime session recording.
 
 | Value | Description |
 |-------|-------------|
@@ -644,33 +908,34 @@ Used in the `platform` field for payment recording.
 
 ---
 
-## 10. Quick Start Checklist
+## 11. Quick Start Checklist
 
 1. **Get API keys** from PlayCamp Studio dashboard
 2. **Set up sandbox** environment for development
 3. **Implement sponsor creation** (POST /v1/server/sponsors)
 4. **Implement coupon flow** (validate then redeem)
 5. **Implement payment recording** (POST /v1/server/payments)
-6. **Set up webhook receiver** for real-time event notifications
-7. **Verify webhook signatures** using HMAC-SHA256
-8. **Test with isTest flag** before going live
-9. **Switch to live environment** when ready for production
+6. **Record playtime sessions** (POST /v1/server/playtime/sessions) — optionally bulk
+7. **Set up webhook receiver** for real-time event notifications
+8. **Verify webhook signatures** using HMAC-SHA256
+9. **Test with isTest flag** before going live
+10. **Switch to live environment** when ready for production
 
 ---
 
-## 11. Rate Limits
+## 12. Rate Limits
 
-API requests are rate-limited per API key. If you exceed the limit, you will receive a `429 Too Many Requests` response. Implement exponential backoff for retries.
+API requests are rate-limited per API key. If you exceed the limit, you will receive a `429 Too Many Requests` response. Implement exponential backoff for retries. Prefer the bulk endpoints when recording large volumes of payments or playtime sessions to stay within limits.
 
 ---
 
-## 12. Language-Specific Tips
+## 13. Language-Specific Tips
 
 ### Python (requests)
 ```python
 import requests
 
-BASE_URL = "https://sandbox-sdk-api.playcamp.dev"
+BASE_URL = "https://sandbox-sdk-api.playcamp.io"
 HEADERS = {
     "Authorization": "Bearer {keyId}:{secret}",
     "Content-Type": "application/json"
@@ -706,7 +971,7 @@ HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.o
 
 ### curl
 ```bash
-curl -X POST https://sandbox-sdk-api.playcamp.dev/v1/server/sponsors \
+curl -X POST https://sandbox-sdk-api.playcamp.io/v1/server/sponsors \
   -H "Authorization: Bearer YOUR_KEY_ID:YOUR_SECRET" \
   -H "Content-Type: application/json" \
   -d '{"userId":"user_123","creatorKey":"creator_abc"}'

@@ -64,27 +64,19 @@ case $PLATFORM in
         ;;
 esac
 
-# Node SDK agent files
+# Node SDK agent file (single consolidated agent — all roles)
 NODE_AGENTS=(
-    "playcamp-integrator"
-    "playcamp-auditor"
-    "playcamp-webhook-specialist"
-    "playcamp-migration-assistant"
-    "playcamp-test-verifier"
+    "playcamp-node"
 )
 
-# Go SDK agent files
+# Go SDK agent file (single consolidated agent — all roles)
 GO_AGENTS=(
-    "playcamp-go-integrator"
-    "playcamp-go-auditor"
-    "playcamp-go-webhook-specialist"
-    "playcamp-go-migration-assistant"
-    "playcamp-go-test-verifier"
+    "playcamp-go"
 )
 
-# API agent files
+# API agent file
 API_AGENTS=(
-    "playcamp-api-guide"
+    "playcamp-api"
 )
 
 # Helper functions
@@ -359,25 +351,17 @@ When the user requests anything related to PlayCamp SDK — including payment, c
 
     if [ "$PLATFORM" = "node" ] || [ "$PLATFORM" = "all" ]; then
         rules="${rules}
-| SDK setup, integration, payment, coupon, sponsor API | \`@agent-playcamp-integrator\` |
-| Webhook endpoint, event handling, signature verification | \`@agent-playcamp-webhook-specialist\` |
-| Code review, audit, security check for PlayCamp code | \`@agent-playcamp-auditor\` |
-| Migrate raw HTTP/fetch/axios calls to PlayCamp SDK | \`@agent-playcamp-migration-assistant\` |
-| Build verification, config check, environment validation | \`@agent-playcamp-test-verifier\` |"
+| Any PlayCamp Node SDK work — setup, payment/coupon/sponsor/playtime/webview API, webhooks, raw-HTTP migration, code audit, build verification | \`@agent-playcamp-node\` |"
     fi
 
     if [ "$PLATFORM" = "go" ] || [ "$PLATFORM" = "all" ]; then
         rules="${rules}
-| Go SDK setup, integration, payment, coupon, sponsor API | \`@agent-playcamp-go-integrator\` |
-| Go webhook endpoint, event handling, signature verification | \`@agent-playcamp-go-webhook-specialist\` |
-| Go code review, audit, security check for PlayCamp code | \`@agent-playcamp-go-auditor\` |
-| Go: migrate raw HTTP calls to PlayCamp Go SDK | \`@agent-playcamp-go-migration-assistant\` |
-| Go: build verification, config check, go vet | \`@agent-playcamp-go-test-verifier\` |"
+| Any PlayCamp Go SDK work — setup, payment/coupon/sponsor/playtime/webview API, webhooks, raw-HTTP migration, code audit, go build/vet verification | \`@agent-playcamp-go\` |"
     fi
 
     if [ "$PLATFORM" = "api" ] || [ "$PLATFORM" = "all" ]; then
         rules="${rules}
-| Direct HTTP API guide (Python, Java, C#, PHP, non-SDK languages) | \`@agent-playcamp-api-guide\` |"
+| Direct HTTP API integration (Python, Java, C#, PHP, Ruby, curl — non-SDK languages) | \`@agent-playcamp-api\` |"
     fi
 
     rules="${rules}
@@ -509,19 +493,19 @@ show_next_steps() {
 
     if [ "$PLATFORM" = "node" ] || [ "$PLATFORM" = "all" ]; then
         echo "   Node SDK integration:"
-        echo -e "   ${YELLOW}Use @agent-playcamp-integrator to integrate PlayCamp SDK with server key: YOUR_KEY${NC}"
+        echo -e "   ${YELLOW}Use @agent-playcamp-node to integrate PlayCamp SDK with server key: YOUR_KEY${NC}"
         echo ""
     fi
 
     if [ "$PLATFORM" = "go" ] || [ "$PLATFORM" = "all" ]; then
         echo "   Go SDK integration:"
-        echo -e "   ${YELLOW}Use @agent-playcamp-go-integrator to integrate PlayCamp Go SDK${NC}"
+        echo -e "   ${YELLOW}Use @agent-playcamp-go to integrate PlayCamp Go SDK${NC}"
         echo ""
     fi
 
     if [ "$PLATFORM" = "api" ] || [ "$PLATFORM" = "all" ]; then
         echo "   Direct HTTP API (non-Node.js):"
-        echo -e "   ${YELLOW}Use @agent-playcamp-api-guide to integrate PlayCamp via HTTP${NC}"
+        echo -e "   ${YELLOW}Use @agent-playcamp-api to integrate PlayCamp via HTTP${NC}"
         echo ""
     fi
 

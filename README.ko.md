@@ -1,8 +1,11 @@
 # PlayCamp SDK - Claude Code 에이전트
 
-PlayCamp SDK 연동을 자동화하는 AI 에이전트 모음입니다 (Node.js, Go, 직접 HTTP API).
-
 [English](README.md) | **한국어**
+
+> [!WARNING]
+> **Deprecated / 유지보수 중단.** 이 프로젝트는 더 이상 유지보수되지 않으며 대체 프로젝트가 없습니다. 오래된 SDK 버전·API를 참조할 수 있고, 이후 업데이트나 수정 계획이 없습니다. 사용 시 주의하세요. 최신 연동 가이드는 공식 [PlayCamp 문서](https://playcamp.io/docs/guides/developers/game-integration/overview)를 참고하세요.
+
+PlayCamp SDK 연동을 자동화하는 AI 에이전트 모음입니다 (Node.js, Go, 직접 HTTP API).
 
 ## 지원 카테고리
 

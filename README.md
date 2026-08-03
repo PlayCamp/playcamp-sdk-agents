@@ -2,6 +2,9 @@
 
 **English** | [한국어](README.ko.md)
 
+> [!WARNING]
+> **Deprecated & unmaintained.** This project is no longer maintained and has no replacement. It may reference outdated SDK versions and APIs, and no further updates or fixes are planned. Use at your own risk. For current integration guidance, refer to the official [PlayCamp docs](https://playcamp.io/docs/guides/developers/game-integration/overview).
+
 AI agents for automating PlayCamp SDK integration (Node.js, Go, and direct HTTP API).
 
 ## Supported Categories
